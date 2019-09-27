@@ -4,6 +4,7 @@ import random
 import time
 import os
 from tqdm import tqdm
+
 class Hilo():
         def __init__(self, thread_id, tiempot, prioridad):
             self.thread_id = thread_id   
