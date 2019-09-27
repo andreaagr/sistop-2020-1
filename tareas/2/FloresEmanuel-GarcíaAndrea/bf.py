@@ -25,8 +25,6 @@ class FB():
             self.listaexec = []
             self.executed = []
             self.t_global = 0
-            #Si se ocupa el progress bar
-            #self.t_total = t
             self.barra_t = 0
 
         def despachador(self):
@@ -52,19 +50,25 @@ class FB():
 
         def estadisticas(self):
             ejecutados = ""
-            print("El tiempo total que tardaron en ejecutarse fue %d" % (self.t_global))
+            sumat_espera = 0
+            suma_prom = 0
+            suma_ttot = 0
+            num_procesos = 0
             for proceso in self.listaexec:
                 ejecutados += proceso
             print("El orden de los procesos fue el siguiente: %s" % (ejecutados))
             #print("Tiempo total %d", self.t_global)
-            print('\n{:10} {:<10} {:10} {:10} {:10}'.format("Proceso", "Inicio", "Fin", "Espera", "Prom"))
-            print('_________________________________________________')
+            print('\n{:10} {:<10} {:10} {:10} {:10} {:10}'.format("Proceso", "Inicio", "Fin", "Total" ,"Espera", "Prom"))
+            print('_____________________________________________________________')
             for proceso in self.executed:
-                #print("Proceso "+ proceso.thread_id + "\n" + "Tiempo total " + str(proceso.tiempo_total) + "\n" + "Tiempo espera "
-                #+ str(proceso.t_espera) + "\n" + "Tiempo de inicio " + str(proceso.t_0) + "\n" + "Tiempo fin " + str(proceso.t_fin) + "\n")
-                print('{:10}|{:<10}|{:<10}|{:<10}|{:<10.3f}'.format(proceso.thread_id, proceso.t_0, proceso.t_fin, proceso.t_espera, ((proceso.t_fin - proceso.t_0)/proceso.tiempo_total)))
+                num_procesos += 1
+                sumat_espera += proceso.t_espera
+                suma_ttot += proceso.tiempo_total
+                promedio = (proceso.t_fin - proceso.t_0)/proceso.tiempo_total
+                suma_prom += promedio            
+                print('{:10}|{:<10}|{:<10}|{:<10}|{:<10}|{:<10.4f}'.format(proceso.thread_id, proceso.t_0, proceso.t_fin,proceso.tiempo_total, proceso.t_espera, promedio))
+            print('{:40.3f}{:10.3f}{:10.3f}'.format(suma_ttot/num_procesos, sumat_espera/num_procesos, suma_prom/num_procesos))           
 
-                
         #Añade a la lista de prioridad correspondiente
         def agregaLP(self, proceso):
             p = proceso.prioridad
@@ -77,7 +81,7 @@ class FB():
             else:
                 self.cola3.append(proceso)
 
-
+        #Recorre cada cola e imprime los procesos que hay en ella
         def imprime_Prioridad(self,colas):
             num_cola = 0
             for cola in colas:
@@ -88,26 +92,31 @@ class FB():
                     
 
         def planifica(self, procesos):       
+            #Crea la cantidad de progress bar de procesos que tenemos
             for proceso in procesos:
                 proceso.barra_p = tqdm(total = proceso.tiempo_total,leave = False, desc = "Proceso %s" % (proceso.thread_id))
-            #--------------------------------------------            
+            #--------------------------------------------
+            #El despachador elige la cola de mayor prioridad            
             sig_proceso = self.despachador()
             inicia = 0
+            #Mientras haya procesos en las colas
             while sig_proceso != -1:
+                #Se saca el proceso de la cola de mayor prioridad
                 proceso = sig_proceso.pop(0)
                 #Se crea una lista con todas las colas
                 tmp = [self.cola0, self.cola1, self.cola2, self.cola3] 
                 #Duración del quantum  
-                #self.imprime_Prioridad(tmp)             
+                #Agrega el proceso a la lista de los que se han ejecutado       
                 self.listaexec.append(proceso.thread_id)
                 while inicia < 5:
                     time.sleep(0.5)
-                    #Proceso sacado de la lista en ejecución
+                    #Si el proceso aun tiene ejecuciones pendientes
                     if proceso.t_ejecucion < proceso.tiempo_total:
                         if proceso.t_ejecucion == 0:
                             proceso.t_0 = self.t_global
                         os.system('clear')
                         self.imprime_Prioridad(tmp)
+                        #Actualiza el progress bar del proceso en ejecucion
                         proceso.barra_p.update(1)
                         proceso.t_ejecucion += 1
                     else: 
@@ -127,22 +136,26 @@ class FB():
                 else:
                     if proceso.t_fin == 0:
                         proceso.t_fin = self.t_global
+                    #Se agrega a la lista de procesos que terminaron su ejecucion
                     self.executed.append(proceso)
                 sig_proceso = self.despachador()
             os.system('clear')
             self.estadisticas()
 
 if __name__ == '__main__':
+    #Para asociar el numero de proceso a una letra
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"    
     l_process =[]
     fb = FB()
     #Para saber cuanto debe tardar la ejecución
     t_total = 0
-    #Recupera el valor de los argumentos
+    #Recupera el valor de numero de procesos de los argumentos
     num_procesos = int(sys.argv[1])
-    for i in range(num_procesos):
+    #Genera la cantidad de hilos que le indicamos
+    for i in range(num_procesos):        
         t_process = random.randrange(1,15)   
-        prioridad = random.randrange(0,4)     
+        prioridad = random.randrange(0,4)
+        #Proceso con un tiempo y prioridad aleatorio     
         proceso = Hilo(letras[i], t_process, prioridad)
         l_process.append(proceso)
         fb.agregaLP(proceso)
