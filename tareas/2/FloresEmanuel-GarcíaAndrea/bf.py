@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import random
 import time
@@ -57,7 +58,6 @@ class FB():
             for proceso in self.listaexec:
                 ejecutados += proceso
             print("El orden de los procesos fue el siguiente: %s" % (ejecutados))
-            #print("Tiempo total %d", self.t_global)
             print('\n{:10} {:<10} {:10} {:10} {:10} {:10}'.format("Proceso", "Inicio", "Fin", "Total" ,"Espera", "Prom"))
             print('_____________________________________________________________')
             for proceso in self.executed:
@@ -110,13 +110,13 @@ class FB():
                 self.listaexec.append(proceso.thread_id)
                 while inicia < 5:
                     time.sleep(0.5)
-                    #Si el proceso aun tiene ejecuciones pendientes
+                    #Si el proceso a¨²n tiene ejecuciones pendientes
                     if proceso.t_ejecucion < proceso.tiempo_total:
                         if proceso.t_ejecucion == 0:
                             proceso.t_0 = self.t_global
                         os.system('clear')
                         self.imprime_Prioridad(tmp)
-                        #Actualiza el progress bar del proceso en ejecucion
+                        #Actualiza el progress bar del proceso en ejecuci¨®n
                         proceso.barra_p.update(1)
                         proceso.t_ejecucion += 1
                     else: 
@@ -136,7 +136,7 @@ class FB():
                 else:
                     if proceso.t_fin == 0:
                         proceso.t_fin = self.t_global
-                    #Se agrega a la lista de procesos que terminaron su ejecucion
+                    #Se agrega a la lista de procesos que terminaron su ejecuci¨®n
                     self.executed.append(proceso)
                 sig_proceso = self.despachador()
             os.system('clear')
@@ -147,8 +147,6 @@ if __name__ == '__main__':
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"    
     l_process =[]
     fb = FB()
-    #Para saber cuanto debe tardar la ejecuciÃ³n
-    t_total = 0
     #Recupera el valor de numero de procesos de los argumentos
     num_procesos = int(sys.argv[1])
     #Genera la cantidad de hilos que le indicamos
@@ -159,6 +157,5 @@ if __name__ == '__main__':
         proceso = Hilo(letras[i], t_process, prioridad)
         l_process.append(proceso)
         fb.agregaLP(proceso)
-        #t_total += t_process
 
     fb.planifica(l_process)
