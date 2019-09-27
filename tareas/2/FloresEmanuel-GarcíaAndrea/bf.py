@@ -4,7 +4,7 @@ import time
 import os
 from tqdm import tqdm
 class Hilo():
-        def __init__(self, thread_id, tiempot):
+        def __init__(self, thread_id, tiempot, prioridad):
             self.thread_id = thread_id   
             self.tiempo_total = tiempot
             #Indica en que momento comenzó su ejecución        
@@ -13,12 +13,12 @@ class Hilo():
             self.t_fin = 0
             self.t_espera = 0
             self.t_ejecucion = 0
-            self.prioridad = 0
-            #self.barra_p = 0
+            self.prioridad = prioridad
+            self.barra_p = None
     
 class FB():
-        def __init__(self, procesos, t):
-            self.cola0 = procesos
+        def __init__(self):
+            self.cola0 = []
             self.cola1 = []
             self.cola2 = []
             self.cola3 = []
@@ -26,7 +26,7 @@ class FB():
             self.executed = []
             self.t_global = 0
             #Si se ocupa el progress bar
-            self.t_total = t
+            #self.t_total = t
             self.barra_t = 0
 
         def despachador(self):
@@ -52,15 +52,19 @@ class FB():
 
         def estadisticas(self):
             ejecutados = ""
-            print("El tiempo total que tardaron en ejecutarse fue %d", (self.t_global))
+            print("El tiempo total que tardaron en ejecutarse fue %d" % (self.t_global))
             for proceso in self.listaexec:
                 ejecutados += proceso
             print("El orden de los procesos fue el siguiente: %s" % (ejecutados))
-            print("Tiempo total %d", self.t_global)
+            #print("Tiempo total %d", self.t_global)
+            print('\n{:10} {:<10} {:10} {:10} {:10}'.format("Proceso", "Inicio", "Fin", "Espera", "Prom"))
+            print('_________________________________________________')
             for proceso in self.executed:
-                print("Proceso "+ proceso.thread_id + "\n" + "Tiempo total " + str(proceso.tiempo_total) + "\n" + "Tiempo espera "
-                + str(proceso.t_espera) + "\n" + "Tiempo de inicio " + str(proceso.t_0) + "\n" + "Tiempo fin " + str(proceso.t_fin) + "\n")
+                #print("Proceso "+ proceso.thread_id + "\n" + "Tiempo total " + str(proceso.tiempo_total) + "\n" + "Tiempo espera "
+                #+ str(proceso.t_espera) + "\n" + "Tiempo de inicio " + str(proceso.t_0) + "\n" + "Tiempo fin " + str(proceso.t_fin) + "\n")
+                print('{:10}|{:<10}|{:<10}|{:<10}|{:<10.3f}'.format(proceso.thread_id, proceso.t_0, proceso.t_fin, proceso.t_espera, ((proceso.t_fin - proceso.t_0)/proceso.tiempo_total)))
 
+                
         #Añade a la lista de prioridad correspondiente
         def agregaLP(self, proceso):
             p = proceso.prioridad
@@ -77,15 +81,14 @@ class FB():
         def imprime_Prioridad(self,colas):
             num_cola = 0
             for cola in colas:
-                
                 for proceso in cola:
                     print("Cola %d" %(num_cola))
                     print("Proceso: %s \t Prioridad: %d \n" % (proceso.thread_id,proceso.prioridad))
                 num_cola += 1
                     
 
-        def planifica(self):       
-            for proceso in self.cola0:
+        def planifica(self, procesos):       
+            for proceso in procesos:
                 proceso.barra_p = tqdm(total = proceso.tiempo_total,leave = False, desc = "Proceso %s" % (proceso.thread_id))
             #--------------------------------------------            
             sig_proceso = self.despachador()
@@ -103,7 +106,6 @@ class FB():
                     if proceso.t_ejecucion < proceso.tiempo_total:
                         if proceso.t_ejecucion == 0:
                             proceso.t_0 = self.t_global
-                        
                         os.system('clear')
                         self.imprime_Prioridad(tmp)
                         proceso.barra_p.update(1)
@@ -133,16 +135,17 @@ class FB():
 if __name__ == '__main__':
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"    
     l_process =[]
+    fb = FB()
     #Para saber cuanto debe tardar la ejecución
     t_total = 0
     #Recupera el valor de los argumentos
     num_procesos = int(sys.argv[1])
     for i in range(num_procesos):
         t_process = random.randrange(1,15)   
-        prioridad = random.randrange(0,3)     
-        proceso = Hilo(letras[i], t_process)
+        prioridad = random.randrange(0,4)     
+        proceso = Hilo(letras[i], t_process, prioridad)
         l_process.append(proceso)
-        t_total += t_process
+        fb.agregaLP(proceso)
+        #t_total += t_process
 
-    fb = FB(l_process, t_total)
-    fb.planifica()
+    fb.planifica(l_process)
