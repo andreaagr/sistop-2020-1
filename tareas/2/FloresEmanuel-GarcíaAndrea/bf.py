@@ -8,9 +8,9 @@ class Hilo():
         def __init__(self, thread_id, tiempot, prioridad):
             self.thread_id = thread_id   
             self.tiempo_total = tiempot
-            #Indica en que momento comenz贸 su ejecuci贸n        
+            #Indica en que momento comenzo su ejecución        
             self.t_0 = 0
-            #Indica en que momento termin贸 su ejecuci贸n
+            #Indica en que momento termino su ejecución
             self.t_fin = 0
             self.t_espera = 0
             self.t_ejecucion = 0
@@ -69,7 +69,7 @@ class FB():
                 print('{:10}|{:<10}|{:<10}|{:<10}|{:<10}|{:<10.4f}'.format(proceso.thread_id, proceso.t_0, proceso.t_fin,proceso.tiempo_total, proceso.t_espera, promedio))
             print('{:40.3f}{:10.3f}{:10.3f}'.format(suma_ttot/num_procesos, sumat_espera/num_procesos, suma_prom/num_procesos))           
 
-        #A帽ade a la lista de prioridad correspondiente
+        #Añade a la lista de prioridad correspondiente
         def agregaLP(self, proceso):
             p = proceso.prioridad
             if p == 0:
@@ -105,7 +105,7 @@ class FB():
                 proceso = sig_proceso.pop(0)
                 #Se crea una lista con todas las colas
                 tmp = [self.cola0, self.cola1, self.cola2, self.cola3] 
-                #Duraci贸n del quantum  
+                #Duración del quantum  
                 #Agrega el proceso a la lista de los que se han ejecutado       
                 self.listaexec.append(proceso.thread_id)
                 while inicia < 5:
