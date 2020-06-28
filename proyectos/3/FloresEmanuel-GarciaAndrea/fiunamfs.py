@@ -76,7 +76,7 @@ class FSUnamFI:
         seg = fecha[12:14]
         return dia + '/' + mes + '/' + anio + ' ' + hora + ':' + min + ':' + seg
 
-    # La funciï¿½ï¿½n buscar serï¿½ï¿½ fundamental, ya que sabremos si existe una entrada y su ubicaciï¿½ï¿½n
+    # La función buscar serï¿½ï¿½ fundamental, ya que sabremos si existe una entrada y su ubicaciï¿½ï¿½n
     def buscar_entrada(self, nombre_buscar):
         for num_entrada in range(128):
             p_entrada = self.sb.cluster_size + num_entrada * ENT_DIR.entrada_size
